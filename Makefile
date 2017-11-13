@@ -1,15 +1,16 @@
 # Makefile for the simple example kernel.
 AS86	=as86 -0 -a
 LD86	=ld86 -0
-AS	=gas
-LD	=gld
+AS	=as
+LD	=ld -Ttext=0x00
 LDFLAGS	=-s -x -M
 
 all:	Image
 
 Image: boot system
 	dd bs=32 if=boot of=Image skip=1
-	dd bs=512 if=system of=Image skip=2 seek=1
+	objcopy -O binary system head
+	dd bs=512 if=head of=Image  seek=1
 	sync
 
 disk: Image
@@ -18,7 +19,7 @@ disk: Image
 
 head.o: head.s
 
-system:	head.o 
+system:	head.o
 	$(LD) $(LDFLAGS) head.o  -o system > System.map
 
 boot:	boot.s

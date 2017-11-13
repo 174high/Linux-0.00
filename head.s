@@ -6,8 +6,10 @@ TSS0_SEL	= 0x20
 LDT0_SEL	= 0x28
 TSS1_SEL	= 0X30
 LDT1_SEL	= 0x38
+
 .text
-startup_32:
+.global _start
+_start:
 	movl $0x10,%eax
 	mov %ax,%ds         
 # 对ds 赋值为0X10 就是GDT中数据段选择符2 0是空的 1是代码段 2 是数据段
@@ -167,12 +169,12 @@ lidt_opcode:
 lgdt_opcode:
 	.word (end_gdt-gdt)-1	# so does gdt   长度
 	.long gdt		# This will be rewrite by code. 地址
-	.align 3          #8个字节对齐
+	.align 8          
 idt:	.fill 256,8,0		# idt is uninitialized
-gdt:	.quad 0x0000000000000000	/* NULL descriptor */ 第一个空描述符
-	.quad 0x00c09a00000007ff	/* 8Mb 0x08, base = 0x00000 */ 第二个代码段
-	.quad 0x00c09200000007ff	/* 8Mb 0x10 */ 数据段
-	.quad 0x00c0920b80000002	/* screen 0x18 - for display */ 显示
+gdt:	.quad 0x0000000000000000	/* NULL descriptor */
+	.quad 0x00c09a00000007ff	/* 8Mb 0x08, base = 0x00000 */
+	.quad 0x00c09200000007ff	/* 8Mb 0x10 */ 
+	.quad 0x00c0920b80000002	/* screen 0x18 - for display */
 #  4K颗粒度，数据段 ，读写，基地址0xb8000,段限长度为0x0002,实际段长度是8KB
 #  对应到显示内存区域上                            2*颗粒度（4K）=8KB
 	.word 0x0068, tss0, 0xe900, 0x0	# TSS0 descr 0x20 #
@@ -185,7 +187,7 @@ init_stack:                          # Will be used as user stack for task0.
 	.long init_stack            # 32位的地址 堆栈段偏移位置
 	.word 0x10			    # 堆栈段同内核数据段
 /*************************************/
-.align 3
+.align 8
 ldt0:	.quad 0x0000000000000000
 	.quad 0x00c0fa00000003ff	# 0x0f, base = 0x00000
 	.quad 0x00c0f200000003ff	# 0x17
@@ -205,7 +207,7 @@ tss0:	.long 0 			/* back link */
 krn_stk0:
 #	.long 0
 /************************************/
-.align 3
+.align 8
 ldt1:	.quad 0x0000000000000000
 	.quad 0x00c0fa00000003ff	# 0x0f, base = 0x00000
 	.quad 0x00c0f200000003ff	# 0x17
@@ -229,7 +231,7 @@ krn_stk1:
 task0:
 	movl $0x17, %eax
 	movw %ax, %ds
-	movl $65, %al              /* print 'A' */
+	movb $65, %al              /* print 'A' */
 	int $0x80
 	movl $0xfff, %ecx
 1:	loop 1b
@@ -237,7 +239,7 @@ task0:
 task1:
 	movl $0x17, %eax
 	movw %ax, %ds
-	movl $66, %al              /* print 'B' */
+	movb $66, %al              /* print 'B' */
 	int $0x80
 	movl $0xfff, %ecx
 1:	loop 1b
