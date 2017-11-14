@@ -16,6 +16,8 @@ go:     mov   ax,cs
 loop1: jmp  loop1
 msgl:  	.ascii "Loading system ..."
         .byte 13,10
-.org 510
-       .word 0xAA55
+.org 510               #vim -b  the program  you compile 
+       .word 0xAA55    #type :%!xxd  at the end of file 
+                       #you can see 0xAA55 at 0x210+ 14 15 
+
 
