@@ -2,6 +2,19 @@
 Linux-0.00  for learning x86 assemble language 
 on ubuntu 14.04 
 
+编译
+make 
+使用WINIMAGE 拷贝到软盘
+使用 mcopy a:Image . 拷贝到平台目录上
+把Image 安装到平台
+dd bs=8192 if=Image of=/dev/fd0 
+sync 
+
+
+代码的说明看 clk011c-3.0.pdf 第三章
+
+
+
 编译出错 解决方案： 
 
 http://blog.sina.com.cn/s/blog_9b59ac040101dm7k.html
